@@ -46,7 +46,7 @@ canvas { max-height: 320px; }
 </nav>
 
 <script>
-var L=[['Overview','overview'],['Competitors','competitors'],['Market','market'],['SWOT','swot'],['Research','research'],['Marketing','marketing'],['Website','website'],['Technical','technical'],['ROI','roi'],['Insights','insights']];
+var L=[['Overview','overview'],['Competitors','competitors'],['Market','market'],['SWOT','swot'],['Research','research'],['Marketing','marketing'],['Website','website'],['ROI','roi'],['Insights','insights']];
 var d=document.getElementById('dNav'),m=document.getElementById('mm');
 L.forEach(function(l){
   d.innerHTML+='<a href="#'+l[1]+'" class="px-2.5 py-1.5 rounded-md text-xs font-medium text-gray-400 hover:text-white hover:bg-gray-800/60 transition">'+l[0]+'</a>';
@@ -500,36 +500,7 @@ document.getElementById('mbtn').onclick=function(){document.getElementById('mm')
   </div>
 </section>
 
-<section id="technical" class="py-16 md:py-24 px-4">
-  <div class="max-w-7xl mx-auto">
-    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1"><span class="text-copper">06</span> — Technical Audit</h2>
-    <p class="text-gray-500 text-sm mb-10">Current GoDaddy platform limitations and Next.js migration plan</p>
-    <div class="grid lg:grid-cols-2 gap-6">
-      <div class="bg-gray-900/80 rounded-2xl border border-red-900/40 overflow-hidden">
-        <div class="px-6 py-4 border-b border-red-900/40"><h3 class="text-sm font-semibold text-red-400 uppercase tracking-wide">Current — GoDaddy</h3></div>
-        <div class="p-6 space-y-3">
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-red-400 text-sm mt-0.5">✕</span><div><p class="text-sm font-medium text-white">284KB single HTML page</p><p class="text-xs text-gray-500 mt-1">No lazy loading, no code splitting, slow first paint</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-red-400 text-sm mt-0.5">✕</span><div><p class="text-sm font-medium text-white">No schema markup</p><p class="text-xs text-gray-500 mt-1">Invisible to Google rich results (LocalBusiness, Review, FAQ)</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-red-400 text-sm mt-0.5">✕</span><div><p class="text-sm font-medium text-white">Core Web Vitals: Poor</p><p class="text-xs text-gray-500 mt-1">LCP 3.5–5s, CLS 180, TBT 600ms — all red flags</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-red-400 text-sm mt-0.5">✕</span><div><p class="text-sm font-medium text-white">Brand color mismatch</p><p class="text-xs text-gray-500 mt-1">Teal/mint overlay instead of brand slate + copper</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-red-400 text-sm mt-0.5">✕</span><div><p class="text-sm font-medium text-white">8 stock Getty photos</p><p class="text-xs text-gray-500 mt-1">No real project portfolio, undermines trust</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-red-400 text-sm mt-0.5">✕</span><div><p class="text-sm font-medium text-white">No conversion tracking</p><p class="text-xs text-gray-500 mt-1">No clear CTAs, no form tracking, no click-to-call</p></div></div>
-        </div>
-      </div>
-      <div class="bg-gray-900/80 rounded-2xl border border-green-900/40 overflow-hidden">
-        <div class="px-6 py-4 border-b border-green-900/40"><h3 class="text-sm font-semibold text-green-400 uppercase tracking-wide">Proposed — Next.js</h3></div>
-        <div class="p-6 space-y-3">
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-green-400 text-sm mt-0.5">✓</span><div><p class="text-sm font-medium text-white">SSR/SSG — LCP under 1.5s</p><p class="text-xs text-gray-500 mt-1">Perfect Core Web Vitals, instant page loads</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-green-400 text-sm mt-0.5">✓</span><div><p class="text-sm font-medium text-white">Structured data markup</p><p class="text-xs text-gray-500 mt-1">LocalBusiness, Review star ratings, FAQ schemas</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-green-400 text-sm mt-0.5">✓</span><div><p class="text-sm font-medium text-white">Brand-accurate design</p><p class="text-xs text-gray-500 mt-1">Slate (#4C6971) + Copper (#C87941) from logo</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-green-400 text-sm mt-0.5">✓</span><div><p class="text-sm font-medium text-white">Real photography</p><p class="text-xs text-gray-500 mt-1">Company-owned project shots, no stock photos</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-green-400 text-sm mt-0.5">✓</span><div><p class="text-sm font-medium text-white">7-point conversion system</p><p class="text-xs text-gray-500 mt-1">Sticky CTA, trust badges, reviews, instant quote</p></div></div>
-          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="text-green-400 text-sm mt-0.5">✓</span><div><p class="text-sm font-medium text-white">Service area landing pages</p><p class="text-xs text-gray-500 mt-1">Harrisburg, Mechanicsburg, Carlisle, Hershey</p></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <section id="roi" class="py-16 md:py-24 px-4">
   <div class="max-w-7xl mx-auto">
