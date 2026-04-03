@@ -1,775 +1,437 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revive Roof Repair — Growth Analysis Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#4C6971',
-                        'primary-dark': '#3A5359',
-                        'primary-light': '#6B8A91',
-                        copper: '#C87941',
-                        'copper-light': '#D99363',
-                        'slate-dark': '#2C3E50',
-                        'slate-light': '#F8F9FA',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        * { scroll-behavior: smooth; }
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        .hero-gradient { background: linear-gradient(135deg, #4C6971 0%, #3A5359 50%, #C87941 100%); }
-        .card-gradient { background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%); }
-        .stat-number { font-weight: 800; background: linear-gradient(135deg, #4C6971, #C87941); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .fade-in { animation: fadeIn 0.6s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .tab-active { border-bottom: 3px solid #4C6971; color: #4C6971; font-weight: 600; }
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .sidebar-link { transition: all 0.2s ease; }
-        .sidebar-link:hover, .sidebar-link.active { background-color: rgba(76, 105, 113, 0.1); border-left: 3px solid #4C6971; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revive Roof Repair — Market & Growth Analysis</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      colors: {
+        copper: { DEFAULT: '#C87941', light: '#D99363', dark: '#B06B39' },
+        slate: { DEFAULT: '#4C6971', light: '#6B8A91', dark: '#3A5359' },
+      }
+    }
+  }
+}
+</script>
+<style>
+* { scroll-behavior: smooth; margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', system-ui, sans-serif; }
+html { scrollbar-width: thin; scrollbar-color: #374151 #111827; }
+section { scroll-margin-top: 5rem; }
+a { text-decoration: none; }
+canvas { max-height: 320px; }
+</style>
 </head>
-<body class="bg-gray-50 text-slate-dark antialiased">
+<body class="min-h-screen bg-gray-950 text-gray-100">
 
-    <!-- Top Bar -->
-    <div class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50 border-b border-gray-100">
-        <div class="max-w-full mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="https://img1.wsimg.com/isteam/ip/ef7dbdbc-d01d-40b6-9dd3-2f23cb41dec2/blob-40fefb0.png/:/rs=h:40,cg:true,m/qt=q:95" alt="Revive Roof Repair Logo" class="h-8">
-                <span class="text-sm font-medium text-gray-500">|</span>
-                <span class="text-sm text-gray-500">Growth Analysis — April 2026</span>
-            </div>
-            <div class="flex items-center gap-4">
-                <span class="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Prepared by Steel City AI</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mobile Nav Toggle -->
-    <button id="menuToggle" class="fixed bottom-4 right-4 z-50 md:hidden bg-primary text-white p-3 rounded-full shadow-lg">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+<nav class="fixed top-0 inset-x-0 z-50 bg-gray-950/90 backdrop-blur-md border-b border-gray-800/80">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
+    <a href="#hero" class="flex items-center gap-2">
+      <img src="https://img1.wsimg.com/isteam/ip/ef7dbdbc-d01d-40b6-9dd3-2f23cb41dec2/blob-40fefb0.png" onerror="this.style.display='none'" class="h-7 w-auto filter brightness-0 invert opacity-90">
+      <span class="hidden sm:block text-xs font-semibold tracking-wide uppercase text-gray-300">Revive Roof Repair</span>
+    </a>
+    <div id="dNav" class="hidden lg:flex items-center gap-0.5"></div>
+    <button id="mbtn" class="lg:hidden text-gray-300 p-1">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
+  </div>
+  <div id="mm" class="hidden lg:hidden bg-gray-950/95 backdrop-blur-md border-t border-gray-800 px-4 pb-3 pt-1 space-y-0.5"></div>
+</nav>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed left-0 top-14 bottom-0 w-56 bg-white shadow-md z-40 hidden md:block overflow-y-auto">
-        <nav class="py-4">
-            <a href="#dashboard" class="sidebar-link active block px-4 py-2.5 text-sm text-slate-dark border-l-3 border-transparent" onclick="showSection('dashboard')">
-                <span class="mr-2">📊</span> Dashboard
-            </a>
-            <a href="#competitors" class="sidebar-link block px-4 py-2.5 text-sm text-slate-dark border-l-3 border-transparent" onclick="showSection('competitors')">
-                <span class="mr-2">🔍</span> Competitor Analysis
-            </a>
-            <a href="#marketing" class="sidebar-link block px-4 py-2.5 text-sm text-slate-dark border-l-3 border-transparent" onclick="showSection('marketing')">
-                <span class="mr-2">📈</span> Marketing Plan
-            </a>
-            <a href="#design" class="sidebar-link block px-4 py-2.5 text-sm text-slate-dark border-l-3 border-transparent" onclick="showSection('design')">
-                <span class="mr-2">🎨</span> Website Redesign
-            </a>
-            <a href="#images" class="sidebar-link block px-4 py-2.5 text-sm text-slate-dark border-l-3 border-transparent" onclick="showSection('images')">
-                <span class="mr-2">📸</span> Image Strategy
-            </a>
-            <a href="#technical" class="sidebar-link block px-4 py-2.5 text-sm text-slate-dark border-l-3 border-transparent" onclick="showSection('technical')">
-                <span class="mr-2">⚙️</span> Technical Audit
-            </a>
-            <a href="#timeline" class="sidebar-link block px-4 py-2.5 text-sm text-slate-dark border-l-3 border-transparent" onclick="showSection('timeline')">
-                <span class="mr-2">📅</span> Implementation
-            </a>
-            <a href="#roi" class="sidebar-link block px-4 py-2.5 text-sm text-slate-dark border-l-3 border-transparent" onclick="showSection('roi')">
-                <span class="mr-2">💰</span> ROI Analysis
-            </a>
-        </nav>
-    </aside>
+<script>
+var L=[['Overview','overview'],['Competitors','competitors'],['Market','market'],['SWOT','swot'],['Marketing','marketing'],['Website','website'],['Technical','technical'],['ROI','roi'],['Market Research','research'],['Insights','insights']];
+var d=document.getElementById('dNav'),m=document.getElementById('mm');
+L.forEach(function(l){
+  d.innerHTML+='<a href="#'+l[1]+'" class="px-2.5 py-1.5 rounded-md text-xs font-medium text-gray-400 hover:text-white hover:bg-gray-800/60 transition">'+l[0]+'</a>';
+  m.innerHTML+='<a href="#'+l[1]+'" onclick="document.getElementById(\'mm\').classList.add(\'hidden\')" class="block text-sm text-gray-300 hover:text-white py-2 px-3 rounded-md hover:bg-gray-800/50">'+l[0]+'</a>';
+});
+document.getElementById('mbtn').onclick=function(){document.getElementById('mm').classList.toggle('hidden');};
+</script>
 
-    <!-- Main Content -->
-    <main class="md:ml-56 pt-14 min-h-screen">
+<section id="hero" class="relative min-h-[85vh] md:min-h-screen flex items-end">
+  <div class="absolute inset-0">
+    <img src="https://img1.wsimg.com/isteam/ip/ef7dbdbc-d01d-40b6-9dd3-2f23cb41dec2/1000034820.jpg" alt="Roofing work" class="w-full h-full object-cover opacity-30" onerror="this.style.display='none'">
+  </div>
+  <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/80 to-gray-950/40"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(200,121,65,0.15)_0%,transparent_60%)]"></div>
+  <div class="relative z-10 max-w-7xl mx-auto px-4 pb-16 md:pb-28">
+    <div class="flex items-center gap-4 mb-6">
+      <img src="https://img1.wsimg.com/isteam/ip/ef7dbdbc-d01d-40b6-9dd3-2f23cb41dec2/blob-40fefb0.png" onerror="this.style.display='none'" class="h-12 md:h-16 w-auto drop-shadow-2xl">
+    </div>
+    <p class="text-xs font-semibold tracking-widest uppercase text-copper mb-3">Steel City AI — Market &amp; Growth Analysis</p>
+    <h1 class="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-tight">Revive Roof Repair<br><span class="text-copper">Competitive Analysis</span></h1>
+    <p class="mt-4 text-gray-400 max-w-2xl text-sm md:text-base">Harrisburg, PA — Roof Repair &amp; Restoration — 9 Competitors Analyzed — Comprehensive Marketing Plan &amp; Website Audit</p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="#overview" class="bg-copper hover:bg-copper-dark text-white text-sm font-medium px-6 py-2.5 rounded-lg transition">Explore Report</a>
+      <a href="#swot" class="bg-gray-800/80 hover:bg-gray-700/80 text-white text-sm font-medium px-6 py-2.5 rounded-lg border border-gray-700 transition">View SWOT</a>
+    </div>
+  </div>
+</section>
 
-        <!-- DASHBOARD SECTION -->
-        <section id="dashboard-section" class="section-content fade-in">
-            <!-- Hero -->
-            <div class="hero-gradient text-white py-10 px-6">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl md:text-4xl font-bold mb-2">Growth Analysis Dashboard</h1>
-                    <p class="text-lg opacity-90">Comprehensive market, marketing & technical analysis for Revive Roof Repair</p>
-                    <p class="text-sm opacity-75 mt-1">Harrisburg, PA • April 3, 2026 • Steel City AI</p>
-                </div>
-            </div>
+<section id="overview" class="py-16 md:py-24 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1"><span class="text-copper">01</span> — Company Overview</h2>
+    <p class="text-gray-500 text-sm mb-10">Business profile, service area and current digital positioning</p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-gray-900/80 rounded-2xl border border-gray-800 p-6 md:p-8">
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">About Revive Roof Repair</h3>
+        <p class="text-gray-300 text-sm leading-relaxed">Revive Roof Repair is a Harrisburg, PA-based roofing contractor specializing in <strong class="text-white">roof repair, replacement, and restoration</strong>. Operating in the South Central PA market covering Harrisburg, Mechanicsburg, Carlisle, Hershey, and Lancaster, Revive serves a region with strong demand driven by aging housing stock, harsh winters, and severe weather cycles.</p>
+        <p class="text-gray-300 text-sm leading-relaxed mt-3">The company currently operates on a GoDaddy-hosted website with limited digital presence — a significant gap given that <strong class="text-white">4,400+ monthly searches</strong> for roofing keywords go unanswered in the Harrisburg area, and 9 competitors are fighting for those leads.</p>
+      </div>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-3"><p class="text-gray-500 text-xs">Industry</p><p class="text-white font-medium text-xs mt-0.5">Roofing / Residential</p></div>
+          <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-3"><p class="text-gray-500 text-xs">HQ</p><p class="text-white font-medium text-xs mt-0.5">Harrisburg, PA</p></div>
+          <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-3"><p class="text-gray-500 text-xs">Website</p><p class="text-gray-300 font-medium text-xs mt-0.5">reviveroofrepair.com</p></div>
+          <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-3"><p class="text-gray-500 text-xs">Market Opportunity</p><p class="text-white font-medium text-xs mt-0.5">$4.4M+ annual</p></div>
+        </div>
+        <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-6">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">Service Areas</h3>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/50">Harrisburg</span>
+            <span class="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/50">Mechanicsburg</span>
+            <span class="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/50">Carlisle</span>
+            <span class="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/50">Hershey</span>
+            <span class="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/50">Camp Hill</span>
+            <span class="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/50">York</span>
+            <span class="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/50">Lancaster</span>
+            <span class="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/50">Lebanon</span>
+          </div>
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2 mt-4">Services</h3>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs bg-slate/20 text-slate-light px-2.5 py-1 rounded-full border border-slate/30">Roof Repair</span>
+            <span class="text-xs bg-slate/20 text-slate-light px-2.5 py-1 rounded-full border border-slate/30">Replacement</span>
+            <span class="text-xs bg-slate/20 text-slate-light px-2.5 py-1 rounded-full border border-slate/30">Restoration</span>
+            <span class="text-xs bg-slate/20 text-slate-light px-2.5 py-1 rounded-full border border-slate/30">Storm Damage</span>
+            <span class="text-xs bg-slate/20 text-slate-light px-2.5 py-1 rounded-full border border-slate/30">Inspections</span>
+            <span class="text-xs bg-slate/20 text-slate-light px-2.5 py-1 rounded-full border border-slate/30">Insurance Claims</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-            <!-- Key Stats -->
-            <div class="max-w-5xl mx-auto px-4 py-8">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-                        <div class="stat-number text-3xl">9</div>
-                        <div class="text-sm text-gray-500 mt-1">Competitors Analyzed</div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-                        <div class="stat-number text-3xl">10</div>
-                        <div class="text-sm text-gray-500 mt-1">Marketing Channels</div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-                        <div class="stat-number text-3xl">$6.5K</div>
-                        <div class="text-sm text-gray-500 mt-1">Website Investment</div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-                        <div class="stat-number text-3xl">47+</div>
-                        <div class="text-sm text-gray-500 mt-1">Leads Per Month</div>
-                    </div>
-                </div>
+<section id="competitors" class="py-16 md:py-24 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1"><span class="text-copper">02</span> — Competitive Landscape</h2>
+    <p class="text-gray-500 text-sm mb-10">9 competitors analyzed across Harrisburg &amp; surrounding markets</p>
+    <div class="overflow-x-auto bg-gray-900/80 rounded-2xl border border-gray-800">
+      <table class="w-full text-xs md:text-sm min-w-[900px]">
+        <thead class="bg-gray-800/50">
+          <tr>
+            <th class="px-5 py-3 text-left text-gray-400 font-medium uppercase">#</th>
+            <th class="px-5 py-3 text-left text-gray-400 font-medium uppercase">Company</th>
+            <th class="px-5 py-3 text-left text-gray-400 font-medium uppercase">Rating</th>
+            <th class="px-5 py-3 text-left text-gray-400 font-medium uppercase">Website</th>
+            <th class="px-5 py-3 text-left text-gray-400 font-medium uppercase">Certifications</th>
+            <th class="px-5 py-3 text-left text-gray-400 font-medium uppercase">Strengths</th>
+            <th class="px-5 py-3 text-left text-gray-400 font-medium uppercase">Weaknesses</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-800">
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-lg">🥇</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">The Exterior Company</span><br><span class="text-gray-600 text-xs">Lancaster, PA</span></td>
+            <td class="px-5 py-4 text-white font-medium">4.9★ (900+)</td>
+            <td class="px-5 py-4"><span class="text-amber-400">Modern</span></td>
+            <td class="px-5 py-4 text-gray-400 text-xs">OC Platinum, GAF Master Elite</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">Highest review volume, dual certs, insurance partnerships, aggressive door-to-door</td>
+            <td class="px-5 py-4 text-red-400 text-xs">"Storm chaser" perception, past fraud controversy, not local to Harrisburg</td>
+          </tr>
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-lg">🥈</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">ROOFX</span><br><span class="text-gray-600 text-xs">Harrisburg, PA</span></td>
+            <td class="px-5 py-4 text-white font-medium">5.0★ (134)</td>
+            <td class="px-5 py-4"><span class="text-amber-400">Modern</span></td>
+            <td class="px-5 py-4 text-gray-400 text-xs">GAF Master Elite</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">Perfect 5.0★, local Harrisburg office, strong SEO with city landing pages</td>
+            <td class="px-5 py-4 text-red-400 text-xs">Lower review volume vs TEC, multi-location feels less "neighborhood"</td>
+          </tr>
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-lg">🥉</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">Greenawalt Roofing</span><br><span class="text-gray-600 text-xs">Lancaster area</span></td>
+            <td class="px-5 py-4 text-white font-medium">4.8★</td>
+            <td class="px-5 py-4"><span class="text-green-400">Professional</span></td>
+            <td class="px-5 py-4 text-gray-400 text-xs">CertainTeed 5-Star SELECT</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">22+ years, 16K+ projects, family-owned trust narrative</td>
+            <td class="px-5 py-4 text-red-400 text-xs">CertainTeed less recognized than GAF, less insurance focus</td>
+          </tr>
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-gray-500 font-bold">4</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">JP Construction</span><br><span class="text-gray-600 text-xs">Harrisburg area</span></td>
+            <td class="px-5 py-4 text-gray-400">~250</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">Basic</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">—</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">Local reputation, established in market</td>
+            <td class="px-5 py-4 text-red-400 text-xs">Limited digital presence, minimal SEO</td>
+          </tr>
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-gray-500 font-bold">5</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">Keystone Exteriors</span></td>
+            <td class="px-5 py-4 text-gray-400">Limited</td>
+            <td class="px-5 py-4 text-red-400 text-xs">GoDaddy</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">—</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">Basic web presence</td>
+            <td class="px-5 py-4 text-red-400 text-xs">Outdated platform, no differentiation</td>
+          </tr>
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-gray-500 font-bold">6</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">H&amp;H Roofing</span></td>
+            <td class="px-5 py-4 text-gray-400">Limited</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">Basic</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">—</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">Local</td>
+            <td class="px-5 py-4 text-red-400 text-xs">Minimal digital footprint</td>
+          </tr>
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-gray-500 font-bold">7</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">Capital Area Roofing</span></td>
+            <td class="px-5 py-4 text-gray-400">—</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">Minimal</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">—</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">—</td>
+            <td class="px-5 py-4 text-red-400 text-xs">No significant online presence</td>
+          </tr>
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-gray-500 font-bold">8</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">American Pro Roofing</span></td>
+            <td class="px-5 py-4 text-gray-400">—</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">Minimal</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">—</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">—</td>
+            <td class="px-5 py-4 text-red-400 text-xs">No digital footprint detected</td>
+          </tr>
+          <tr class="hover:bg-gray-800/20">
+            <td class="px-5 py-4 text-gray-500 font-bold">9</td>
+            <td class="px-5 py-4"><span class="text-white font-medium">Other Independents</span></td>
+            <td class="px-5 py-4 text-gray-400">Mixed</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">Varied</td>
+            <td class="px-5 py-4 text-gray-400 text-xs">—</td>
+            <td class="px-5 py-4 text-gray-300 text-xs">Fragmented, low competition</td>
+            <td class="px-5 py-4 text-red-400 text-xs">No coordinated strategy</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-                <!-- Executive Summary -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h2 class="text-xl font-semibold text-slate-dark mb-4">Executive Summary</h2>
-                    <div class="space-y-3 text-gray-700">
-                        <p>The Harrisburg roofing market is <strong>competitive but fragmented</strong>, with no single player dominating the "roof restoration" positioning. This represents a significant white-space opportunity for Revive Roof Repair to become the go-to brand for cost-effective roof restoration alternatives.</p>
-                        <p>Your current website is built on <strong>GoDaddy Website Builder</strong>, which limits SEO, performance, and lead generation capabilities. A migration to <strong>Next.js on Vercel</strong> would dramatically improve search visibility and conversion rates.</p>
-                        <p>Our 10-channel marketing plan projects <strong>47+ new leads per month</strong> with a $3,400–$5,700/month budget. A single roofing job ($5,000–$15,000+) covers the entire marketing investment.</p>
-                    </div>
-                </div>
+<section id="market" class="py-16 md:py-24 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1"><span class="text-copper">03</span> — Market Position</h2>
+    <p class="text-gray-500 text-sm mb-10">Digital presence comparison and market opportunity sizing</p>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-4"><p class="text-xs text-gray-500">Monthly Searches</p><p class="text-xl md:text-2xl font-bold text-white mt-1">4,400+</p><p class="text-xs font-medium text-copper mt-1">Roofing keywords</p></div>
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-4"><p class="text-xs text-gray-500">Avg. Job Value</p><p class="text-xl md:text-2xl font-bold text-white mt-1">$8,500</p><p class="text-xs font-medium text-green-400 mt-1">Residential</p></div>
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-4"><p class="text-xs text-gray-500">Weak Sites</p><p class="text-xl md:text-2xl font-bold text-white mt-1">7/9</p><p class="text-xs font-medium text-red-400 mt-1">GoDaddy/Wix</p></div>
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-4"><p class="text-xs text-gray-500">Revenue Opportunity</p><p class="text-xl md:text-2xl font-bold text-white mt-1">$1.2M</p><p class="text-xs font-medium text-blue-400 mt-1">Annual</p></div>
+    </div>
+    <div class="bg-gray-900/80 rounded-2xl border border-gray-800 p-6 mb-8">
+      <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">Digital Strength Score</h3>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-32 text-right shrink-0">The Exterior Co.</span><div class="flex-1 bg-gray-800 rounded-full h-6 overflow-hidden"><div class="h-full rounded-full" style="width:85%;background:#22c55e"></div></div><span class="text-xs font-medium text-white w-10 text-right">85</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-32 text-right shrink-0">ROOFX</span><div class="flex-1 bg-gray-800 rounded-full h-6 overflow-hidden"><div class="h-full rounded-full" style="width:75%;background:#16a34a"></div></div><span class="text-xs font-medium text-white w-10 text-right">75</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-32 text-right shrink-0">Greenawalt</span><div class="flex-1 bg-gray-800 rounded-full h-6 overflow-hidden"><div class="h-full rounded-full" style="width:65%;background:#059669"></div></div><span class="text-xs font-medium text-white w-10 text-right">65</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-32 text-right shrink-0">JP Construction</span><div class="flex-1 bg-gray-800 rounded-full h-6 overflow-hidden"><div class="h-full rounded-full" style="width:42%;background:#d97706"></div></div><span class="text-xs font-medium text-white w-10 text-right">42</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-32 text-right shrink-0">Keystone</span><div class="flex-1 bg-gray-800 rounded-full h-6 overflow-hidden"><div class="h-full rounded-full" style="width:35%;background:#b45309"></div></div><span class="text-xs font-medium text-white w-10 text-right">35</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-32 text-right shrink-0">H&amp;H Roofing</span><div class="flex-1 bg-gray-800 rounded-full h-6 overflow-hidden"><div class="h-full rounded-full" style="width:38%;background:#ca8a04"></div></div><span class="text-xs font-medium text-white w-10 text-right">38</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs text-copper font-bold w-32 text-right shrink-0">▼ Revive</span><div class="flex-1 bg-gray-800 rounded-full h-6 overflow-hidden"><div class="h-full rounded-full" style="width:22%;background:#C87941"></div></div><span class="text-xs font-bold text-copper w-10 text-right">22</span></div>
+      </div>
+      <p class="text-xs text-gray-600 mt-3">Score: website quality, SEO visibility, review volume, GBP optimization, content depth</p>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="bg-gray-900/80 rounded-2xl border border-gray-800 p-6">
+        <h3 class="text-sm font-semibold text-gray-300 mb-4">Market Gap Analysis</h3>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3 bg-gray-800/40 rounded-xl p-4">
+            <span class="text-lg">🎯</span>
+            <div><p class="text-sm font-medium text-white">Roof Restoration — Nobody Owns It</p><p class="text-xs text-gray-400 mt-1">Zero competitors actively market restoration/rejuvenation as a primary service. This is Revive's biggest positioning gap.</p></div>
+          </div>
+          <div class="flex items-start gap-3 bg-gray-800/40 rounded-xl p-4">
+            <span class="text-lg">🔧</span>
+            <div><p class="text-sm font-medium text-white">Repair-First Transparency</p><p class="text-xs text-gray-400 mt-1">Most competitors push replacement. A "we'll repair if we can" messaging is virtually absent.</p></div>
+          </div>
+          <div class="flex items-start gap-3 bg-gray-800/40 rounded-xl p-4">
+            <span class="text-lg">📱</span>
+            <div><p class="text-sm font-medium text-white">Digital Experience Void</p><p class="text-xs text-gray-400 mt-1">7 of 9 competitors use website builders (GoDaddy/Wix). A modern, fast site immediately differentiates.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-900/80 rounded-2xl border border-gray-800 p-6">
+        <h3 class="text-sm font-semibold text-gray-300 mb-4">Top 3 Dominance Factors</h3>
+        <div class="space-y-4">
+          <div><p class="text-xs font-medium text-white mb-1">Review Volume — Most Critical</p><p class="text-xs text-gray-500">TEC has 900+ reviews. Revive has a fraction. Systematic review generation is #1 priority.</p></div>
+          <div><p class="text-xs font-medium text-white mb-1">Manufacturer Certifications — Trust Signal</p><p class="text-xs text-gray-500">GAF Master Elite (top 2% of roofers), CertainTeed SELECT, Owens Corning Platinum unlock extended warranties competitors use as sales weapons.</p></div>
+          <div><p class="text-xs font-medium text-white mb-1">Insurance Claims — Storm = Revenue</p><p class="text-xs text-gray-500">TEC and others partner with insurance companies for storm damage work. Revive needs this relationship infrastructure.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-gray-900/80 rounded-2xl border border-gray-800 p-6 mt-6">
+      <h3 class="text-sm font-semibold text-gray-300 mb-4">Estimated Market Share — Harrisburg Roofing</h3>
+      <canvas id="marketChart"></canvas>
+    </div>
+  </div>
+</section>
 
-                <!-- Quick Wins -->
-                <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-200 mb-6">
-                    <h2 class="text-lg font-semibold text-green-800 mb-4">🚀 Top 3 Quick Wins</h2>
-                    <div class="space-y-3">
-                        <div class="flex gap-3">
-                            <span class="flex-shrink-0 w-8 h-8 bg-green-200 text-green-800 rounded-full flex items-center justify-center font-bold">1</span>
-                            <div>
-                                <strong class="text-green-900">Claim "Roof Restoration" Positioning</strong>
-                                <p class="text-sm text-gray-700">No competitor owns this space. 80% of replacement value at 30-50% of the cost.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <span class="flex-shrink-0 w-8 h-8 bg-green-200 text-green-800 rounded-full flex items-center justify-center font-bold">2</span>
-                            <div>
-                                <strong class="text-green-900">Google Business Profile Optimization</strong>
-                                <p class="text-sm text-gray-700">Complete profile, 25+ photos, service areas, automated review requests.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <span class="flex-shrink-0 w-8 h-8 bg-green-200 text-green-800 rounded-full flex items-center justify-center font-bold">3</span>
-                            <div>
-                                <strong class="text-green-900">Add Click-to-Call & Lead Capture Forms</strong>
-                                <p class="text-sm text-gray-700">Current site has no visible contact forms or prominent phone number on mobile.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<section id="swot" class="py-16 md:py-24 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1"><span class="text-copper">04</span> — SWOT Analysis</h2>
+    <p class="text-gray-500 text-sm mb-10">Strengths, Weaknesses, Opportunities, Threats</p>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="bg-green-950/30 rounded-2xl border border-green-800/50 p-5 md:p-6">
+        <h3 class="text-base font-bold text-green-400 mb-4 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-sm font-black text-white">S</span>Strengths</h3>
+        <ul class="space-y-2">
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span><span>Roof restoration specialization — differentiates from 9 competitors focused on replacement</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span><span>Younger, nimble organization vs. legacy competitors with institutional inertia</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span><span>Repair-first positioning builds trust in replacement-heavy market</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span><span>Local Harrisburg presence — "homegrown" vs. Lancaster-based competitors</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span><span>Brand identity with recognizable copper &amp; slate color palette</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span><span>Insurance claims assistance capability established</span></li>
+        </ul>
+      </div>
+      <div class="bg-orange-950/30 rounded-2xl border border-orange-800/50 p-5 md:p-6">
+        <h3 class="text-base font-bold text-orange-400 mb-4 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-sm font-black text-white">W</span>Weaknesses</h3>
+        <ul class="space-y-2">
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></span><span>GoDaddy website — 284KB single page, no SEO, no schema, poor Core Web Vitals (LCP 3.5–5s)</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></span><span>Minimal review volume vs. TEC (900+) and ROOFX (134, 5.0★)</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></span><span>No manufacturer certifications on display (GAF Master Elite requires 5+ years)</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></span><span>Website colors don't match logo (teal/mint overlay instead of slate + copper)</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></span><span>8 stock Getty photos — no real project portfolio</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></span><span>No content marketing, blog, or community engagement strategy</span></li>
+        </ul>
+      </div>
+      <div class="bg-blue-950/30 rounded-2xl border border-blue-800/50 p-5 md:p-6">
+        <h3 class="text-base font-bold text-blue-400 mb-4 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-sm font-black text-white">O</span>Opportunities</h3>
+        <ul class="space-y-2">
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span><span><strong class="text-white">Own "roof restoration" in Harrisburg</strong> — zero competitors actively positioned here</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span><span>Next.js website with proper SEO = immediate jump over 7 of 9 competitors using builders</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span><span>Google Ads on high-intent keywords at $2–3 CPC = 15–20 leads/month at $3K budget</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span><span>Automated review generation — target 50+ reviews in 6 months</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span><span>Insurance adjuster partnerships for storm damage referrals across 4-county region</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span><span>Seasonal content (ice dams, hail damage, spring inspections) = free organic traffic</span></li>
+        </ul>
+      </div>
+      <div class="bg-red-950/30 rounded-2xl border border-red-800/50 p-5 md:p-6">
+        <h3 class="text-base font-bold text-red-400 mb-4 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center text-sm font-black text-white">T</span>Threats</h3>
+        <ul class="space-y-2">
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span><span>TEC's door-to-door aggression + 900 reviews = entrenched market dominance</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span><span>ROOFX: local Harrisburg office + GAF Master Elite + 5.0★ — direct local competitor</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span><span>National franchises entering the market</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span><span>Google algorithm favors established review volume — catch-up takes 6–12 months minimum</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span><span>Google Ads CPC inflation from competitor bidding wars ($2.50→$5+/click)</span></li>
+          <li class="flex items-start gap-2 text-sm text-gray-300"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span><span>Weather-dependent revenue — drought years = fewer storm repair jobs</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
-                <p class="text-center text-gray-500 text-sm mb-6">← Use the sidebar to explore each section in detail</p>
-            </div>
-        </section>
+<section id="research" class="py-16 md:py-24 px-4" data-status="loading">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1"><span class="text-copper">05</span> — Deep Market Research</h2>
+    <p class="text-gray-500 text-sm mb-10">Comprehensive Harrisburg roofing market intelligence — <span class="text-copper" id="researchStatus">generating...</span></p>
+    <div id="researchContent" class="prose prose-invert max-w-none"></div>
+  </div>
+</section>
 
-        <!-- COMPETITOR ANALYSIS SECTION -->
-        <section id="competitors-section" class="section-content hidden fade-in">
-            <div class="bg-primary-dark text-white py-10 px-6">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl font-bold">Competitor Analysis</h1>
-                    <p class="text-lg opacity-90 mt-1">Harrisburg Roofing Market Landscape — 9 Competitors</p>
-                </div>
-            </div>
-            <div class="max-w-5xl mx-auto px-4 py-8">
-                <!-- Opportunity Highlight -->
-                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
-                    <div class="flex gap-3">
-                        <span class="text-2xl">💡</span>
-                        <div>
-                            <h3 class="font-semibold text-amber-900">Market Gap Identified: Roof Restoration</h3>
-                            <p class="text-amber-800 mt-1">All 9 competitors focus on full replacement or basic repair. <strong>Zero competitors</strong> actively market roof restoration as a cost-effective alternative. This is your white-space opportunity.</p>
-                        </div>
-                    </div>
-                </div>
+<section id="marketing" class="py-16 md:py-24 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1"><span class="text-copper">06</span> — Marketing Plan</h2>
+    <p class="text-gray-500 text-sm mb-10">10-channel strategy — $3,400–$5,700/month recommended budget</p>
+    <div class="grid lg:grid-cols-2 gap-6 mb-8">
+      <div class="bg-gray-900/80 rounded-2xl border border-gray-800 p-6">
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">Budget Allocation</h3>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between"><span class="text-xs text-gray-400">Google Ads (PPC)</span><span class="text-xs font-medium text-white">$1,500 – $2,500/mo</span></div>
+          <div class="w-full bg-gray-800 rounded-full h-5 overflow-hidden"><div class="h-full bg-copper rounded-full" style="width:45%"></div></div>
+          <div class="flex items-center justify-between"><span class="text-xs text-gray-400">Local SEO + GBP</span><span class="text-xs font-medium text-white">$400 – $600/mo</span></div>
+          <div class="w-full bg-gray-800 rounded-full h-5 overflow-hidden"><div class="h-full bg-slate rounded-full" style="width:15%"></div></div>
+          <div class="flex items-center justify-between"><span class="text-xs text-gray-400">Content Marketing</span><span class="text-xs font-medium text-white">$300 – $500/mo</span></div>
+          <div class="w-full bg-gray-800 rounded-full h-5 overflow-hidden"><div class="h-full bg-slate-light rounded-full" style="width:10%"></div></div>
+          <div class="flex items-center justify-between"><span class="text-xs text-gray-400">Partnerships</span><span class="text-xs font-medium text-white">$200 – $400/mo</span></div>
+          <div class="w-full bg-gray-800 rounded-full h-5 overflow-hidden"><div class="h-full bg-slate/60 rounded-full" style="width:8%"></div></div>
+          <div class="flex items-center justify-between"><span class="text-xs text-gray-400">Email + CRM</span><span class="text-xs font-medium text-white">$50 – $100/mo</span></div>
+          <div class="w-full bg-gray-800 rounded-full h-5 overflow-hidden"><div class="h-full bg-gray-600/50 rounded-full" style="width:5%"></div></div>
+        </div>
+      </div>
+      <div class="bg-gray-900/80 rounded-2xl border border-gray-800 p-6">
+        <h3 class="text-sm font-semibold text-gray-300 mb-4">12-Month Lead Projections</h3>
+        <div class="space-y-3">
+          <div class="bg-gray-800/40 rounded-xl p-4">
+            <div class="flex justify-between"><span class="text-sm font-medium text-white">Months 1–3 (Launch)</span><span class="text-sm font-bold text-amber-400">5–8 leads/mo</span></div>
+            <p class="text-xs text-gray-500 mt-1">Ads launching, GBP optimization, SEO foundation</p>
+          </div>
+          <div class="bg-gray-800/40 rounded-xl p-4">
+            <div class="flex justify-between"><span class="text-sm font-medium text-white">Months 4–6 (Growth)</span><span class="text-sm font-bold text-blue-400">10–15 leads/mo</span></div>
+            <p class="text-xs text-gray-500 mt-1">SEO momentum, ads optimized, reviews building</p>
+          </div>
+          <div class="bg-gray-800/40 rounded-xl p-4">
+            <div class="flex justify-between"><span class="text-sm font-medium text-white">Months 7–9 (Compound)</span><span class="text-sm font-bold text-green-400">15–22 leads/mo</span></div>
+            <p class="text-xs text-gray-500 mt-1">Organic + paid both contributing — compounding returns</p>
+          </div>
+          <div class="bg-gray-800/40 rounded-xl p-4 border border-copper/30">
+            <div class="flex justify-between"><span class="text-sm font-medium text-copper">Months 10–12 (Dominate)</span><span class="text-sm font-bold text-copper">22–32 leads/mo</span></div>
+            <p class="text-xs text-gray-500 mt-1">Full system running — dominant local digital presence</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-5"><div class="text-lg mb-2">🔍</div><h4 class="text-sm font-bold text-white">Local SEO</h4><p class="text-xs text-copper font-medium mt-1">$400–$600/mo</p><p class="text-xs text-gray-400 mt-2">GBP optimization, local citations, backlink building, review generation</p></div>
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-5"><div class="text-lg mb-2">🎯</div><h4 class="text-sm font-bold text-white">Google Ads (PPC)</h4><p class="text-xs text-copper font-medium mt-1">$1,500–$2,500/mo</p><p class="text-xs text-gray-400 mt-2">"roof repair Harrisburg", "emergency roofer near me", storm damage</p></div>
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-5"><div class="text-lg mb-2">⭐</div><h4 class="text-sm font-bold text-white">Review Generation</h4><p class="text-xs text-copper font-medium mt-1">Workflow (free)</p><p class="text-xs text-gray-400 mt-2">Automated SMS/email post-job. Target: 50+ reviews in 6 months.</p></div>
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-5"><div class="text-lg mb-2">📝</div><h4 class="text-sm font-bold text-white">Content Marketing</h4><p class="text-xs text-copper font-medium mt-1">$300–$500/mo</p><p class="text-xs text-gray-400 mt-2">Ice dams, hail damage, shingle lifespan, seasonal prep guides</p></div>
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-5"><div class="text-lg mb-2">🤝</div><h4 class="text-sm font-bold text-white">Partnerships</h4><p class="text-xs text-copper font-medium mt-1">$200–$400/mo</p><p class="text-xs text-gray-400 mt-2">Insurance adjusters, property managers, realtor referrals, HOAs</p></div>
+      <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-5"><div class="text-lg mb-2">📧</div><h4 class="text-sm font-bold text-white">Email Nurture</h4><p class="text-xs text-copper font-medium mt-1">$50–$100/mo</p><p class="text-xs text-gray-400 mt-2">Seasonal checkups, storm prep, repeat/referral workflows</p></div>
+    </div>
+    <div class="bg-gray-900/80 rounded-2xl border border-gray-800 p-6 mt-6">
+      <h3 class="text-sm font-semibold text-gray-300 mb-4">Projected Lead Growth</h3>
+      <canvas id="leadsChart"></canvas>
+    </div>
+  </div>
+</section>
 
-                <!-- Competitor Matrix -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-                    <div class="px-6 py-4 border-b">
-                        <h3 class="font-semibold text-slate-dark">Top Competitors at a Glance</h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="text-left px-4 py-3 text-gray-600">Competitor</th>
-                                    <th class="text-left px-4 py-3 text-gray-600">Reviews</th>
-                                    <th class="text-left px-4 py-3 text-gray-600">Rating</th>
-                                    <th class="text-left px-4 py-3 text-gray-600">Key Strength</th>
-                                    <th class="text-left px-4 py-3 text-gray-600">Weakness</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y">
-                                <tr><td class="px-4 py-3 font-medium">The Exterior Company</td><td>900+</td><td>4.8⭐</td><td>Manufacturer certs</td><td>"Storm chaser" perception</td></tr>
-                                <tr><td class="px-4 py-3 font-medium">ROOFX Roofing</td><td>500+</td><td>4.7⭐</td><td>Strong website</td><td>Newer to market</td></tr>
-                                <tr><td class="px-4 py-3 font-medium">Wagner Roofing</td><td>300+</td><td>4.6⭐</td><td>Established reputation</td><td>Generalist focus</td></tr>
-                                <tr><td class="px-4 py-3 font-medium">Capital Roofing</td><td>150+</td><td>4.5⭐</td><td>Competitive pricing</td><td>Limited online presence</td></tr>
-                                <tr><td class="px-4 py-3 font-medium">A1 Roofing</td><td>200+</td><td>4.3⭐</td><td>24/7 emergency service</td><td>Mixed review quality</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Competitive Positioning -->
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-semibold text-slate-dark mb-4">Competitor Weaknesses Exploitable by Revive</h3>
-                        <ul class="space-y-2 text-sm text-gray-700">
-                            <li class="flex gap-2">❌ <span>Largest players perceived as "storm chasers"</span></li>
-                            <li class="flex gap-2">❌ <span>Lancaster-based — not truly local to Harrisburg</span></li>
-                            <li class="flex gap-2">❌ <span>No restoration-focused offerings</span></li>
-                            <li class="flex gap-2">❌ <span>Communication gaps in post-service follow-up</span></li>
-                            <li class="flex gap-2">❌ <span>Poor social media presence across the board</span></li>
-                        </ul>
-                    </div>
-                    <div class="bg-primary/5 rounded-xl border border-primary/20 p-6">
-                        <h3 class="font-semibold text-primary mb-4">Revive's Competitive Advantages</h3>
-                        <ul class="space-y-2 text-sm text-gray-700">
-                            <li class="flex gap-2">✅ <span class="font-medium">Local Harrisburg presence</span></li>
-                            <li class="flex gap-2">✅ <span class="font-medium">Repair-first approach (builds trust)</span></li>
-                            <li class="flex gap-2">✅ <span class="font-medium">Restoration niche ownership</span></li>
-                            <li class="flex gap-2">✅ <span class="font-medium">Authentic project photos vs. stock</span></li>
-                            <li class="flex gap-2">✅ <span class="font-medium">Transparent, repair-first positioning</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- MARKETING PLAN SECTION -->
-        <section id="marketing-section" class="section-content hidden fade-in">
-            <div class="bg-copper text-white py-10 px-6">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl font-bold">Marketing Plan</h1>
-                    <p class="text-lg opacity-90 mt-1">10-Channel Strategy — $3,400–$5,700/Month Budget</p>
-                </div>
-            </div>
-            <div class="max-w-5xl mx-auto px-4 py-8">
-                <!-- Budget Allocation -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">Monthly Budget Allocation</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <div class="text-center p-4 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-primary">$1,500–2.5K</div>
-                            <div class="text-xs text-gray-500 mt-1">Google Ads</div>
-                        </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-copper">$500–1K</div>
-                            <div class="text-xs text-gray-500 mt-1">Local Services Ads</div>
-                        </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-primary">$500–800</div>
-                            <div class="text-xs text-gray-500 mt-1">Social Media Ads</div>
-                        </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-copper">$800–1.2K</div>
-                            <div class="text-xs text-gray-500 mt-1">SEO & Content</div>
-                        </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-primary">$100–200</div>
-                            <div class="text-xs text-gray-500 mt-1">Email Marketing</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Lead Generation Strategy -->
-                <div class="grid md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-semibold text-slate-dark mb-4">📞 Lead Generation Channels</h3>
-                        <div class="space-y-3 text-sm text-gray-700">
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <strong>Google Ads</strong> — Exact match: "roof repair near me", "emergency roofer Harrisburg", "storm damage repair"
-                            </div>
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <strong>Local Services Ads (LSA)</strong> — Google Guaranteed badge builds instant trust, pay per lead not click
-                            </div>
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <strong>Facebook/Instagram Ads</strong> — Target homeowners in service area with before/after transformations
-                            </div>
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <strong>Retargeting</strong> — Follow website visitors with seasonal maintenance reminders
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-semibold text-slate-dark mb-4">📧 Email Nurture Sequences</h3>
-                        <div class="space-y-3 text-sm text-gray-700">
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <strong>Seasonal Reminders</strong> — Spring/fall roof maintenance checklists with scheduling CTA
-                            </div>
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <strong>Storm Alerts</strong> — Immediate outreach after severe weather events with emergency response
-                            </div>
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <strong>90-Day Nurture</strong> — Post-service check-in sequence driving reviews and referrals
-                            </div>
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <strong>Lead Targets:</strong> &lt;$50 cost per lead, &gt;15% conversion rate for emergency calls
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SEO Strategy -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">🔍 SEO & Content Strategy</h3>
-                    <div class="grid md:grid-cols-3 gap-4">
-                        <div class="p-4 border rounded-lg">
-                            <h4 class="font-medium text-primary mb-2">Local SEO</h4>
-                            <ul class="text-sm text-gray-600 space-y-1">
-                                <li>• Google Business Profile optimization</li>
-                                <li>• 7 county-specific landing pages</li>
-                                <li>• 25+ business photos</li>
-                                <li>• Service area schema markup</li>
-                            </ul>
-                        </div>
-                        <div class="p-4 border rounded-lg">
-                            <h4 class="font-medium text-primary mb-2">Content</h4>
-                            <ul class="text-sm text-gray-600 space-y-1">
-                                <li>• 12+ educational blog posts/year</li>
-                                <li>• Before/after transformation videos</li>
-                                <li>• Commercial case studies</li>
-                                <li>• Seasonal maintenance guides</li>
-                            </ul>
-                        </div>
-                        <div class="p-4 border rounded-lg">
-                            <h4 class="font-medium text-primary mb-2">Review Strategy</h4>
-                            <ul class="text-sm text-gray-600 space-y-1">
-                                <li>• Automated post-job review requests</li>
-                                <li>• Target: 4.8+ stars, 50+ reviews</li>
-                                <li>• Respond to all reviews in 24 hours</li>
-                                <li>• Escalation process for negatives</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- WEBSITE REDESIGN SECTION -->
-        <section id="design-section" class="section-content hidden fade-in">
-            <div class="bg-primary text-white py-10 px-6">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl font-bold">Website Redesign Plan</h1>
-                    <p class="text-lg opacity-90 mt-1">Next.js Architecture — Built for Conversion & SEO</p>
-                </div>
-            </div>
-            <div class="max-w-5xl mx-auto px-4 py-8">
-                <!-- Tech Stack -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">Proposed Technology Stack</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div class="p-4 bg-gray-50 rounded-lg text-center">
-                            <div class="font-bold">Next.js 14+</div>
-                            <div class="text-xs text-gray-500">Framework</div>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-lg text-center">
-                            <div class="font-bold">Tailwind CSS</div>
-                            <div class="text-xs text-gray-500">Styling</div>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-lg text-center">
-                            <div class="font-bold">Vercel</div>
-                            <div class="text-xs text-gray-500">Hosting</div>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-lg text-center">
-                            <div class="font-bold">Contentful/Sanity</div>
-                            <div class="text-xs text-gray-500">CMS</div>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-lg text-center">
-                            <div class="font-bold">Google Analytics 4</div>
-                            <div class="text-xs text-gray-500">Analytics</div>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-lg text-center">
-                            <div class="font-bold">Resend</div>
-                            <div class="text-xs text-gray-500">Email Delivery</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Design System -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">Brand-Aligned Design System</h3>
-                    <div class="flex flex-wrap gap-4 mb-4">
-                        <div class="w-20 h-20 rounded-lg flex flex-col items-center justify-center shadow-md" style="background-color: #4C6971;">
-                            <span class="text-white text-xs font-m">#4C6971</span>
-                            <span class="text-white text-[10px]">Primary: Slate Blue-Gray</span>
-                        </div>
-                        <div class="w-20 h-20 rounded-lg flex flex-col items-center justify-center shadow-md" style="background-color: #C87941;">
-                            <span class="text-white text-xs font-m">#C87941</span>
-                            <span class="text-white text-[10px]">Accent: Copper</span>
-                        </div>
-                        <div class="w-20 h-20 rounded-lg flex flex-col items-center justify-center shadow-md bg-white border">
-                            <span class="text-slate-dark text-xs font-m">#FFFFFF</span>
-                            <span class="text-slate-dark text-[10px]">Background</span>
-                        </div>
-                        <div class="w-20 h-20 rounded-lg flex flex-col items-center justify-center shadow-md" style="background-color: #2C3E50;">
-                            <span class="text-white text-xs font-m">#2C3E50</span>
-                            <span class="text-white text-[10px]">Text</span>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-600">Colors derived directly from Revive's own logo — maintaining brand consistency while elevating visual quality.</p>
-                </div>
-
-                <!-- Site Architecture -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">Proposed Sitemap</h3>
-                    <div class="space-y-1 text-sm">
-                        <div class="flex items-center gap-2 p-2 bg-gray-50 rounded"><strong>🏠 Home</strong> — Hero, services overview, testimonials, CTA</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-8"></span>📋 Services</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-16"></span>• Emergency Repair</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-16"></span>• Shingle Roofing</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-16"></span>• Metal Roofing</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-16"></span>• Commercial Roofing</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-16"></span>• Storm Damage</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-16"></span>• Restoration</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-8"></span>📍 Service Areas</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-16"></span>• Harrisburg, Mechanicsburg, Carlisle, Hershey</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-8"></span>⭐ Reviews & Testimonials</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-8"></span>ℹ️ About Us</div>
-                        <div class="flex items-center gap-2 p-2"><span class="w-8"></span>📝 Blog</div>
-                        <div class="flex items-center gap-2 p-2 bg-gray-50 rounded"><strong>📞 Contact / Free Quote</strong></div>
-                    </div>
-                </div>
-
-                <!-- Conversion Strategy -->
-                <div class="bg-gradient-to-r from-copper/10 to-primary/10 rounded-xl p-6 border border-copper/20">
-                    <h3 class="font-semibold text-slate-dark mb-4">🎯 7 Lead Capture Touchpoints</h3>
-                    <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-700">
-                        <div class="p-3 bg-white rounded-lg">1. <strong>Hero Section CTA</strong> — "Get Your Free Inspection" button above fold</div>
-                        <div class="p-3 bg-white rounded-lg">2. <strong>Sticky Mobile Bar</strong> — Persistent "Call Now" on mobile devices</div>
-                        <div class="p-3 bg-white rounded-lg">3. <strong>Inline Quote Forms</strong> — Embedded in service pages with 3 fields max</div>
-                        <div class="p-3 bg-white rounded-lg">4. <strong>Exit-Intent Modal</strong> — "Wait, get 10% off your first service"</div>
-                        <div class="p-3 bg-white rounded-lg">5. <strong>Blog CTAs</strong> — "Need help? Contact our roofing experts"</div>
-                        <div class="p-3 bg-white rounded-lg">6. <strong>Trust Badges</strong> — Licensed, Insured, BBB, manufacturer certs</div>
-                        <div class="p-3 bg-white rounded-lg">7. <strong>Footer CTA</strong> — "Ready to restore your roof?" in every page footer</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- IMAGE STRATEGY SECTION -->
-        <section id="images-section" class="section-content hidden fade-in">
-            <div class="bg-primary text-white py-10 px-6">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl font-bold">Image Strategy</h1>
-                    <p class="text-lg opacity-90 mt-1">19 Images Cataloged — Real Photos Over Stock</p>
-                </div>
-            </div>
-            <div class="max-w-5xl mx-auto px-4 py-8">
-                <!-- Image Inventory -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">Current Image Inventory</h3>
-                    <div class="grid md:grid-cols-3 gap-4">
-                        <div class="p-4 bg-green-50 border border-green-200 rounded-lg text-center">
-                            <div class="text-3xl font-bold text-green-700">9</div>
-                            <div class="text-sm text-green-600">Company-Owned Photos</div>
-                            <p class="text-xs text-gray-500 mt-1">✅ Keepers for redesign</p>
-                        </div>
-                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg text-center">
-                            <div class="text-3xl font-bold text-amber-700">8</div>
-                            <div class="text-sm text-amber-600">Getty Stock Photos</div>
-                            <p class="text-xs text-gray-500 mt-1">⚠️ Flagged for replacement</p>
-                        </div>
-                        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
-                            <div class="text-3xl font-bold text-blue-700">1</div>
-                            <div class="text-sm text-blue-600">Logo (PNG)</div>
-                            <p class="text-xs text-gray-500 mt-1">🔄 Needs vector upgrade</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Brand Correction -->
-                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
-                    <h3 class="font-semibold text-amber-900 mb-2">⚠️ Brand Color Correction</h3>
-                    <p class="text-amber-800 text-sm">The live site uses a <strong>teal/mint overlay</strong> (rgba(174, 209, 209, 0.25)) that doesn't match Revive's actual brand colors. For the redesign, we'll correct overlays to use the true brand palette:</p>
-                    <div class="flex gap-4 mt-3">
-                        <span class="inline-block w-12 h-8 rounded" style="background-color: #4C6971;"></span>
-                        <span class="text-sm text-amber-700">#4C6971 Slate Blue-Gray (primary)</span>
-                        <span class="inline-block w-12 h-8 rounded" style="background-color: #C87941;"></span>
-                        <span class="text-sm text-amber-700">#C87941 Copper (accent)</span>
-                    </div>
-                </div>
-
-                <!-- Photography Shoot Brief -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">📸 Recommended Photography Shoot</h3>
-                    <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
-                        <div class="p-3 bg-gray-50 rounded-lg">🏠 <strong>Hero Shot</strong> — Crew completing a residential roof repair</div>
-                        <div class="p-3 bg-gray-50 rounded-lg">🔧 <strong>Service Shots</strong> — Close-ups of shingle, metal, and EPDM work</div>
-                        <div class="p-3 bg-gray-50 rounded-lg">👥 <strong>Team Photos</strong> — Professional group shots for About page</div>
-                        <div class="p-3 bg-gray-50 rounded-lg">🌧️ <strong>Storm Damage</strong> — Before/after damage and repair examples</div>
-                        <div class="p-3 bg-gray-50 rounded-lg">🏢 <strong>Commercial</strong> — Large-scale commercial roofing projects</div>
-                        <div class="p-3 bg-gray-50 rounded-lg">🚐 <strong>Branded Vehicles</strong> — Revive trucks with logos on-site</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TECHNICAL AUDIT SECTION -->
-        <section id="technical-section" class="section-content hidden fade-in">
-            <div class="bg-red-700 text-white py-10 px-6">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl font-bold">Technical Audit</h1>
-                    <p class="text-lg opacity-90 mt-1">GoDaddy Website Builder 8.0 — Critical Limitations</p>
-                </div>
-            </div>
-            <div class="max-w-5xl mx-auto px-4 py-8">
-                <!-- Performance Issues -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">Current Performance Issues</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <span class="text-red-600 text-lg">🔴</span>
-                            <div>
-                                <strong class="text-red-900">284KB Inlined CSS Payload</strong>
-                                <p class="text-sm text-gray-700">GoDaddy ships all CSS on every page — most of it unused. Next.js code-splits CSS per page.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <span class="text-red-600 text-lg">🔴</span>
-                            <div>
-                                <strong class="text-red-900">Poor Core Web Vitals</strong>
-                                <p class="text-sm text-gray-700">LCP of 3.5–5 seconds (Google recommends &lt;2.5s). Impacts search rankings directly.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                            <span class="text-amber-600 text-lg">🟡</span>
-                            <div>
-                                <strong class="text-amber-900">30-Second Cache TTL</strong>
-                                <p class="text-sm text-gray-700">GoDaddy's caching is minimal — pages regenerate too frequently, increasing server response time.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                            <span class="text-amber-600 text-lg">🟡</span>
-                            <div>
-                                <strong class="text-amber-900">Missing Security Headers</strong>
-                                <p class="text-sm text-gray-700">X-Content-Type-Options, Referrer-Policy, and Permissions-Policy headers are absent.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <span class="text-red-600 text-lg">🔴</span>
-                            <div>
-                                <strong class="text-red-900">No Structured Data (Schema)</strong>
-                                <p class="text-sm text-gray-700">Zero LocalBusiness, Service, or Review schema markup. Google can't understand your services.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- GoDaddy vs Next.js -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">GoDaddy vs. Next.js: Direct Comparison</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="text-left px-4 py-3">Feature</th>
-                                    <th class="text-center px-4 py-3 text-red-600">GoDaddy Builder</th>
-                                    <th class="text-center px-4 py-3 text-green-600">Next.js + Vercel</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y">
-                                <tr><td class="px-4 py-3">Server-Side Rendering</td><td class="text-center text-red-500">❌ No</td><td class="text-center text-green-500">✅ Yes</td></tr>
-                                <tr><td class="px-4 py-3">Custom Code Access</td><td class="text-center text-red-500">❌ No</td><td class="text-center text-green-500">✅ Full</td></tr>
-                                <tr><td class="px-4 py-3">SEO Controls</td><td class="text-center text-red-500">❌ Limited</td><td class="text-center text-green-500">✅ Complete</td></tr>
-                                <tr><td class="px-4 py-3">Structured Data</td><td class="text-center text-red-500">❌ None</td><td class="text-center text-green-500">✅ JSON-LD</td></tr>
-                                <tr><td class="px-4 py-3">Image Optimization</td><td class="text-center text-red-500">❌ Automatic crop</td><td class="text-center text-green-500">✅ Auto-optimized</td></tr>
-                                <tr><td class="px-4 py-3">CDN Performance</td><td class="text-center text-amber-500">⚠️ Basic</td><td class="text-center text-green-500">✅ Edge CDN</td></tr>
-                                <tr><td class="px-4 py-3">API/Integrations</td><td class="text-center text-red-500">❌ None</td><td class="text-center text-green-500">✅ Unlimited</td></tr>
-                                <tr><td class="px-4 py-3">Analytics</td><td class="text-center text-amber-500">⚠️ GoDaddy only</td><td class="text-center text-green-500">✅ GA4, custom</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TIMELINE SECTION -->
-        <section id="timeline-section" class="section-content hidden fade-in">
-            <div class="bg-primary text-white py-10 px-6">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl font-bold">Implementation Timeline</h1>
-                    <p class="text-lg opacity-90 mt-1">7-10 Week Delivery — 5 Phases</p>
-                </div>
-            </div>
-            <div class="max-w-5xl mx-auto px-4 py-8">
-                <div class="space-y-4">
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-16 text-center">
-                            <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center font-bold mx-auto">1</div>
-                            <div class="text-xs text-gray-500 mt-1">Week 1-2</div>
-                        </div>
-                        <div class="flex-1 bg-white rounded-xl shadow-sm p-5">
-                            <h4 class="font-semibold text-slate-dark">Discovery & Planning</h4>
-                            <p class="text-sm text-gray-600 mt-1">Brand audit, content inventory, competitor benchmarking, user research, sitemap finalization, photography planning.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-16 text-center">
-                            <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center font-bold mx-auto">2</div>
-                            <div class="text-xs text-gray-500 mt-1">Week 2-4</div>
-                        </div>
-                        <div class="flex-1 bg-white rounded-xl shadow-sm p-5">
-                            <h4 class="font-semibold text-slate-dark">Design & Content</h4>
-                            <p class="text-sm text-gray-600 mt-1">Wireframes, visual design system, content writing, photography shoot, service page copy creation.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-16 text-center">
-                            <div class="bg-copper text-white rounded-full w-12 h-12 flex items-center justify-center font-bold mx-auto">3</div>
-                            <div class="text-xs text-gray-500 mt-1">Week 4-7</div>
-                        </div>
-                        <div class="flex-1 bg-white rounded-xl shadow-sm p-5">
-                            <h4 class="font-semibold text-slate-dark">Development</h4>
-                            <p class="text-sm text-gray-600 mt-1">Next.js build, responsive optimization, form integrations, analytics setup, schema markup implementation.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-16 text-center">
-                            <div class="bg-copper text-white rounded-full w-12 h-12 flex items-center justify-center font-bold mx-auto">4</div>
-                            <div class="text-xs text-gray-500 mt-1">Week 7-9</div>
-                        </div>
-                        <div class="flex-1 bg-white rounded-xl shadow-sm p-5">
-                            <h4 class="font-semibold text-slate-dark">Testing & Launch</h4>
-                            <p class="text-sm text-gray-600 mt-1">QA testing, cross-browser/device testing, Core Web Vitals optimization, DNS migration, live deployment.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-16 text-center">
-                            <div class="bg-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold mx-auto">5</div>
-                            <div class="text-xs text-gray-500 mt-1">Ongoing</div>
-                        </div>
-                        <div class="flex-1 bg-green-50 rounded-xl border border-green-200 p-5">
-                            <h4 class="font-semibold text-green-800">Post-Launch Optimization</h4>
-                            <p class="text-sm text-gray-600 mt-1">Marketing campaign launch, performance monitoring, A/B testing, content updates, review generation.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ROI ANALYSIS SECTION -->
-        <section id="roi-section" class="section-content hidden fade-in">
-            <div class="bg-green-700 text-white py-10 px-6">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl font-bold">ROI Analysis</h1>
-                    <p class="text-lg opacity-90 mt-1">Investment Return Projections</p>
-                </div>
-            </div>
-            <div class="max-w-5xl mx-auto px-4 py-8">
-                <!-- Investment Overview -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">Total Investment Breakdown</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span class="text-gray-700">Website Design & Development (Next.js)</span>
-                            <span class="font-bold text-primary">$6,500 – $10,750</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span class="text-gray-700">Monthly Marketing Budget</span>
-                            <span class="font-bold text-copper">$3,400 – $5,700/mo</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-primary/5 rounded-lg border border-primary/20">
-                            <span class="text-gray-700 font-medium">Estimated Cost Per Lead</span>
-                            <span class="font-bold text-primary">&lt; $50</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-primary/5 rounded-lg border border-primary/20">
-                            <span class="text-gray-700 font-medium">Projected New Leads Per Month</span>
-                            <span class="font-bold text-primary">47+</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- The Single Job Rule -->
-                <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-200 mb-6">
-                    <div class="flex gap-3">
-                        <span class="text-4xl">💡</span>
-                        <div>
-                            <h3 class="text-xl font-bold text-green-900">The Single Job Rule</h3>
-                            <p class="text-green-800 mt-2">An average residential roof replacement costs <strong>$5,000–$15,000+</strong>. A single additional job — just <strong>one</strong> per month — covers the entire monthly marketing investment ($3,400–$5,700).</p>
-                            <p class="text-green-700 mt-2">With 47+ projected leads and a conservative 15% close rate, you'd be looking at <strong>7+ additional jobs per month</strong>. That's $35,000–$105,000 in new revenue.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Revenue Projection -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="font-semibold text-slate-dark mb-4">Conservative Revenue Projection</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="text-left px-4 py-3">Metric</th>
-                                    <th class="text-center px-4 py-3">Monthly</th>
-                                    <th class="text-center px-4 py-3">Annual</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y">
-                                <tr><td class="px-4 py-3">New Leads</td><td class="text-center">47+</td><td class="text-center">564+</td></tr>
-                                <tr><td class="px-4 py-3">Assumed Close Rate</td><td class="text-center">15%</td><td class="text-center">15%</td></tr>
-                                <tr><td class="px-4 py-3"><span class="font-medium">New Jobs/Month</span></td><td class="text-center"><span class="font-bold text-green-600">7+</span></td><td class="text-center"><span class="font-bold text-green-600">84+</span></td></tr>
-                                <tr><td class="px-4 py-3">Average Job Value</td><td class="text-center">$8,000</td><td class="text-center">$8,000</td></tr>
-                                <tr class="bg-green-50"><td class="px-4 py-3 font-bold">Projected Revenue</td><td class="text-center font-bold text-green-700">$56,000+</td><td class="text-center font-bold text-green-700">$672,000+</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="bg-slate-dark text-white py-8 px-6 text-center">
-            <p class="text-sm opacity-75">Prepared by Steel City AI • April 3, 2026</p>
-            <p class="text-xs opacity-50 mt-1">All financial projections are estimates based on industry benchmarks. Actual results will vary.</p>
-        </footer>
-    </main>
-
-    <script>
-        // Section navigation
-        function showSection(name) {
-            document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(name + '-section').classList.remove('hidden');
-
-            // Update sidebar active state
-            document.querySelectorAll('.sidebar-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('onclick')?.includes(name)) {
-                    link.classList.add('active');
-                }
-            });
-
-            // Close mobile menu if open
-            document.getElementById('sidebar').classList.add('hidden');
-
-            // Scroll to top
-            window.scrollTo(0, 0);
-        }
-
-        // Mobile menu toggle
-        document.getElementById('menuToggle').addEventListener('click', () => {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hidden');
-        });
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.getElementById('menuToggle');
-            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-                sidebar.classList.add('hidden');
-            }
-        });
-
-        // Show dashboard on load
-        showSection('dashboard');
-    </script>
-</body>
-</html>
+<section id="website" class="py-16 md:py-24 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1"><span class="text-copper">07</span> — Website Redesign</h2>
+    <p class="text-gray-500 text-sm mb-10">Current GoDaddy → proposed Next.js conversion machine</p>
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="bg-gray-900/80 rounded-2xl border border-red-900/40 overflow-hidden">
+        <div class="px-6 py-4 border-b border-red-900/40"><h3 class="text-sm font-semibold text-red-400 uppercase tracking-wide">Current — GoDaddy</h3></div>
+        <div class="p-6 space-y-3">
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-red-400 text-sm">✕</span><div><p class="text-sm font-medium text-white">284KB single HTML page</p><p class="text-xs text-gray-500 mt-1">Slow, no lazy loading, no code splitting</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-red-400 text-sm">✕</span><div><p class="text-sm font-medium text-white">No schema markup</p><p class="text-xs text-gray-500 mt-1">Invisible to Google rich results</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-red-400 text-sm">✕</span><div><p class="text-sm font-medium text-white">Core Web Vitals: Poor</p><p class="text-xs text-gray-500 mt-1">LCP 3.5–5s, CLS 180, TBT 600ms — all red</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-red-400 text-sm">✕</span><div><p class="text-sm font-medium text-white">Brand color mismatch</p><p class="text-xs text-gray-500 mt-1">Teal/mint overlay, not slate + copper</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-red-400 text-sm">✕</span><div><p class="text-sm font-medium text-white">8 stock Getty photos</p><p class="text-xs text-gray-500 mt-1">No real project portfolio, undermines credibility</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-red-400 text-sm">✕</span><div><p class="text-sm font-medium text-white">No conversion optimization</p><p class="text-xs text-gray-500 mt-1">No clear CTAs, no form tracking, no click-to-call</p></div></div>
+        </div>
+      </div>
+      <div class="bg-gray-900/80 rounded-2xl border border-green-900/40 overflow-hidden">
+        <div class="px-6 py-4 border-b border-green-900/40"><h3 class="text-sm font-semibold text-green-400 uppercase tracking-wide">Proposed — Next.js</h3></div>
+        <div class="p-6 space-y-3">
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-green-400 text-sm">✓</span><div><p class="text-sm font-medium text-white">Blazing fast — SSR/SSG</p><p class="text-xs text-gray-500 mt-1">LCP under 1.5s, perfect Core Web Vitals</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-green-400 text-sm">✓</span><div><p class="text-sm font-medium text-white">Full SEO stack</p><p class="text-xs text-gray-500 mt-1">Schema (LocalBusiness, Review), sitemap, meta tags</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-green-400 text-sm">✓</span><div><p class="text-sm font-medium text-white">Brand-accurate design</p><p class="text-xs text-gray-500 mt-1">Slate (#4C6971) + Copper (#C87941) from logo</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-green-400 text-sm">✓</span><div><p class="text-sm font-medium text-white">Custom photography</p><p class="text-xs text-gray-500 mt-1">Real project shots, service area landmarks</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-green-400 text-sm">✓</span><div><p class="text-sm font-medium text-white">7-point conversion strategy</p><p class="text-xs text-gray-500 mt-1">Sticky CTA, trust badges, review snippets, instant quote</p></div></div>
+          <div class="flex items-start gap-3 bg-gray-800/30 rounded-xl p-4"><span class="mt-0.5 text-green-400 text-sm">✓</span><div><p class="text-sm font-medium text-white">Service-area landing pages</p><p class="text-xs text-gray-500 mt-1">Harrisburg, Mechanicsburg, Carlisle, Hershey pages</p></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-8 bg-gray-900/80 rounded-2xl border border-gray-800 p-6">
+      <h3 class="text-sm font-semibold text-gray-300 mb-4">Proposed Architecture</h3>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="text-center p-4 bg-gray-800/40 rounded-xl"><div class="text-lg mb-1">⬛</div><div class="text-xs font-bold text-white">Next.js 14</div><div class="text-[10px] text-gray-500">Framework</div></div>
+        <div class="text-center p-4 bg-gray-800/40 rounded-xl"><div class="text-lg mb-1">🔵</div><div class="text-xs font-bold text-white">Tailwind CSS</div><div class="text-[10px] text-gray-500">Styling</div></div>
+        <div class="text-center p-4 bg-gray-800/40 rounded-xl"><div class="text-lg mb-1">📝</div><div class="text-xs font-bold text-white">Sanity CMS</div><div class="text-[10px] text-gray-500">Content</div></div>
+        <div class="text-center p-4 bg-gray-800/40 rounded-xl"><div class="text-lg mb-1">▲</div><div class="text-xs font-bold text-white">Vercel</div><div class="text-[10px] text-gray-500">Hosting</div></div>
+        <div class="text-center p-4 bg-gray-800/40 rounded-xl"><div class="text-lg mb-1">📊</div><div class="text
